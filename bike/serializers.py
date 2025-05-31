@@ -25,11 +25,12 @@ class RegisterSerializer(serializers.ModelSerializer):
     image = serializers.ImageField(required=False, allow_null=True)     # image 필드 비워두는 것 허용
     current_pos = serializers.CharField(required=False)
     username = serializers.CharField(write_only=True)   # username
+    registration_hash = serializers.CharField(required=False)
 
 
     class Meta:
         model = Bike
-        exclude = ['user', 'registration_hash']
+        exclude = ['user']
         # fields = ('username', 'manufacture_year', 'nickname', 'manufacturer', 'model', 'frame_number', 'weight',
         #          'registration_hash', 'registration_date', 'purchase_date', 'image', 'is_stolen', 'current_pos')
 
