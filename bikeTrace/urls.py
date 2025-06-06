@@ -27,5 +27,6 @@ urlpatterns = [
     path("admin/", admin.site.urls),
     path("users/", include("users.urls")),
     path("bike/", include("bike.urls")),
+    path("blockchain/", include("blockchain.urls")),
     url(r'^media/(?P<path>.*)$', serve, {'document_root':settings.MEDIA_ROOT}),     # debug=False 에서 media path 제공
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

@@ -40,6 +40,8 @@ def get_secret(setting, secrets=secrets):
 
 
 SECRET_KEY = get_secret("SECRET_KEY")
+CONTRACT_ADDRESS = get_secret("CONTRACT_ADDRESS")
+SERVER_PRIVATE_KEY = get_secret("SERVER_PRIVATE_KEY")
 
 # SECURITY WARNING: don't run with debug turned on in production!
 # DEBUG = False
@@ -61,6 +63,7 @@ INSTALLED_APPS = [
     "rest_framework.authtoken",
     "users",   # 회원가입 및 로그인 기능 구현 앱
     "bike",     # 자전거 등록, 조회, 갱신 기능 구현 앱
+    "blockchain",      # 블록체인 web3 연결 기능 구현 앱
 ]
 
 MIDDLEWARE = [

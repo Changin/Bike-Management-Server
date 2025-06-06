@@ -13,6 +13,9 @@ from rest_framework.authtoken.models import Token  # Token 모델
 from rest_framework.validators import UniqueValidator  # 중복 방지를 위한 검증 도구
 
 from .models import Component, Bike     # 부품, 자전거 모델
+from users.models import Profile
+
+import requests
 
 
 # 자전거 등록 시리얼라이저
@@ -27,7 +30,6 @@ class RegisterSerializer(serializers.ModelSerializer):
     username = serializers.CharField(write_only=True)   # username
     registration_hash = serializers.CharField(required=False)
 
-
     class Meta:
         model = Bike
         exclude = ['user']
@@ -36,18 +38,52 @@ class RegisterSerializer(serializers.ModelSerializer):
 
     def create(self, validated_data):
         # CREATE 요청, 자전거 생성 (블록체인 w3 API 요청 통해서 등록번호 생성 후 성공 시 DB 저장)
-        # ----------- 여기서 WEb3 로직 실행----------------------------------- ##
-        try:
-            # registration_hash =
-            pass
-        except Exception as e:
-            # raise serializers.ValidationError("blockchain error")
-            pass
-        # ---------------------------------------------------------------- ##
         username = validated_data.pop('username')
         try:
             user = User.objects.get(username=username)
-            registration_hash = validated_data['frame_number']+'hash123'.upper()
+            profile = Profile.objects.get(user=user)
+            # registration_hash = validated_data['frame_number']+'hash123'.upper()
+
+            # ------------------------------------------------- Web3 api 호출 -------- #
+            # 블록체인 자전거 등록 url
+            register_url = 'http://localhost:8080/blockchain/api/register_bicycle/'
+            # post 요청 내용
+            payload = {
+                "frameNumber": validated_data['frame_number'],
+                "manufacturer": validated_data['manufacturer'],
+                "model": validated_data['model'],
+                "purchaseDate": str(validated_data['purchase_date']).replace('-', ''),
+                "manufactureYear": validated_data['manufacture_year'],
+                "ownerId": username,  # 소유자 id
+                "ownerName": user.last_name + " " + user.first_name,    # 소유자 이름
+                "ownerRRNFront": profile.birthday,  # 주민번호 앞자리
+                "ownerContact": profile.phone,  # 연락처
+                "weight": validated_data['weight']
+            }
+            response = requests.post(url=register_url, json=payload)
+            if response.status_code != 200:
+                raise serializers.ValidationError("blockchain error")
+
+            data = response.json()
+            if data['status'] == "error":
+                raise serializers.ValidationError(data['message'])
+
+            # 등록번호 조회 api 호출
+            hash_url = 'http://localhost:8080/blockchain/api/get_registration_hash/'
+            hash_payload = {
+                "frameNumber": validated_data['frame_number']
+            }
+            response = requests.post(url=hash_url, json=hash_payload)
+            if response.status_code != 200:
+                raise serializers.ValidationError("blockchain error")
+
+            data = response.json()
+            if data['status'] == "error":
+                print('blockchain response error!')
+                raise serializers.ValidationError(data['message'])
+
+            registration_hash = data['registrationHash']
+
         except User.DoesNotExist:
             raise serializers.ValidationError({'usernmae': 'User does not exist'})
 
