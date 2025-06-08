@@ -134,6 +134,7 @@ class BikeDetailSerializer(serializers.ModelSerializer):
         tuning_url = 'http://localhost:8080/blockchain/api/get_tuning_history/'
         replacement_url = 'http://localhost:8080/blockchain/api/get_replacement_history/'
         insurance_url = 'http://localhost:8080/blockchain/api/get_insurance_history/'
+        ownership_url = 'http://localhost:8080/blockchain/api/get_ownership_history/'
         payload = {
             'registrationHash': registration_hash
         }
@@ -142,14 +143,17 @@ class BikeDetailSerializer(serializers.ModelSerializer):
         tuning_res = requests.post(url=tuning_url, json=payload)
         replacement_res = requests.post(url=replacement_url, json=payload)
         insurance_res = requests.post(url=insurance_url, json=payload)
+        ownership_res = requests.post(url=ownership_url, json=payload)
         if (repair_res.status_code != 200 or tuning_res.status_code != 200 or
-                replacement_res.status_code != 200 or insurance_res.status_code != 200):
+                replacement_res.status_code != 200 or insurance_res.status_code != 200 or
+                ownership_res.status_code != 200):
             raise serializers.ValidationError("blockchain error!")
 
         repair_data = repair_res.json()
         tuning_data = tuning_res.json()
         replacement_data = replacement_res.json()
         insurance_data = insurance_res.json()
+        ownership_data = ownership_res.json()
 
         # 추가 데이터 넣기
         rep['repair_count'] = repair_data['count']
@@ -160,6 +164,8 @@ class BikeDetailSerializer(serializers.ModelSerializer):
         rep['replacement_data'] = replacement_data['data']
         rep['insurance_count'] = insurance_data['count']
         rep['insurance_data'] = insurance_data['data']
+        rep['ownership_count'] = ownership_data['count']
+        rep['ownership_data'] = ownership_data['data']
 
         return rep
 
@@ -183,6 +189,7 @@ class BikePublicSerializer(serializers.ModelSerializer):
         tuning_url = 'http://localhost:8080/blockchain/api/get_tuning_history/'
         replacement_url = 'http://localhost:8080/blockchain/api/get_replacement_history/'
         insurance_url = 'http://localhost:8080/blockchain/api/get_insurance_history/'
+        ownership_url = 'http://localhost:8080/blockchain/api/get_ownership_history/'
         payload = {
             'registrationHash': registration_hash
         }
@@ -191,14 +198,17 @@ class BikePublicSerializer(serializers.ModelSerializer):
         tuning_res = requests.post(url=tuning_url, json=payload)
         replacement_res = requests.post(url=replacement_url, json=payload)
         insurance_res = requests.post(url=insurance_url, json=payload)
+        ownership_res = requests.post(url=ownership_url, json=payload)
         if (repair_res.status_code != 200 or tuning_res.status_code != 200 or
-                replacement_res.status_code != 200 or insurance_res.status_code != 200):
+                replacement_res.status_code != 200 or insurance_res.status_code != 200 or
+                ownership_res.status_code != 200):
             raise serializers.ValidationError("blockchain error!")
 
         repair_data = repair_res.json()
         tuning_data = tuning_res.json()
         replacement_data = replacement_res.json()
         insurance_data = insurance_res.json()
+        ownership_data = ownership_res.json()
 
         # 추가 데이터 넣기
         rep['repair_count'] = repair_data['count']
@@ -208,6 +218,7 @@ class BikePublicSerializer(serializers.ModelSerializer):
         rep['replacement_count'] = replacement_data['count']
         rep['replacement_data'] = replacement_data['data']
         rep['insurance_count'] = insurance_data['count']
+        rep['ownership_count'] = ownership_data['count']
 
         return rep
 
