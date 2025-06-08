@@ -45,7 +45,7 @@ SERVER_PRIVATE_KEY = get_secret("SERVER_PRIVATE_KEY")
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = False
-ALLOWED_HOSTS = ['43.200.105.74', '127.0.0.1']
+ALLOWED_HOSTS = ['43.200.105.74', '127.0.0.1', 'localhost']
 # DEBUG = True
 # ALLOWED_HOSTS = []
 
