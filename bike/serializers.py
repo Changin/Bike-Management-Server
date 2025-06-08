@@ -121,8 +121,8 @@ class BikePublicSerializer(serializers.ModelSerializer):
         # fields = ['model', 'manufacturer', 'is_stolen']      # 추가 예정
 
 
-# ToDo: 블록체인 보험, 수리 내역 추가 API 작성 필요
-# ToDo: 블록체인 소유자 이전 API 작성 필요
+# ToDo: 블록체인 보험, 수리 내역 추가 API 작성 필요 -> blockchain app에 구현됨
+# ToDo: 블록체인 소유자 이전 API 작성 필요 -> blockchain app에 구현됨
 
 
 # 자전거 목록 조회 시리얼라이저
@@ -132,7 +132,7 @@ class BikeListSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 
-# 부품 조회 시리얼라이저
+# 부품 시리얼라이저
 class ComponentSerializer(serializers.ModelSerializer):
     class Meta:
         model = Component

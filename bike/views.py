@@ -8,6 +8,8 @@ from .serializers import (RegisterSerializer, ComponentSerializer, BikeListSeria
 from .models import Component, Bike
 from .permissions import CustomReadOnly, CustomBikeReadOnly
 
+import requests
+
 
 # Create your views here.
 # REST API 뷰 사용, 클래스형 뷰, 자전거 생성 기능
@@ -60,7 +62,7 @@ class BikeListView(generics.ListAPIView):
 # RetrieveUpdateAPIView : GET, PUT, PATCH - 조회 + 수정만 가능
 class ComponentView(generics.RetrieveUpdateAPIView):
     serializer_class = ComponentSerializer
-    permission_classes = [CustomReadOnly]   # 특정 권한이 필요할 때 이 필드 설정해서 구현 가능
+    permission_classes = [CustomReadOnly]   # 특정 권한이 필요할 때 이 필드 설정해서 구현 가능 (get은 누구나, 수정은 본인만 가능)
 
     def get_object(self):
         registration_hash = self.kwargs.get('registration_hash')
@@ -78,7 +80,32 @@ class ComponentView(generics.RetrieveUpdateAPIView):
 
         if request.method == 'PATCH':
             # ----------------- 여기서 Web3 로직 수행 ------------- #
-            pass
+            expendables = ('hood', 'bartape', 'chainring', 'sprocket', 'chain',
+                           'pulley', 'brakepad', 'rotor', 'tyre', 'tube', 'cable')
+
+            for key, value in request.data.items():
+                if key in expendables:
+                    # 소모품의 경우 교체이력 추가 api 호출
+                    url = 'http://localhost:8080/blockchain/api/add_replacement_history/'
+                    payload = {
+                        'registrationHash': self.kwargs.get('registration_hash'),
+                        'replacementCID': key + ':' + value
+                    }
+                    response = requests.post(url=url, json=payload)
+                    if response.status_code != 200:
+                        print('blockchain patch error!')
+                        return Response({'error': 'blockchain patch error!'}, status=500)
+                else:
+                    # 튜닝의 경우 튜닝이력 추가 api 호출
+                    url = 'http://localhost:8080/blockchain/api/add_tuning_history/'
+                    payload = {
+                        'registrationHash': self.kwargs.get('registration_hash'),
+                        'tuningCID': key + ':' + value
+                    }
+                    response = requests.post(url=url, json=payload)
+                    if response.status_code != 200:
+                        print('blockchain tuning error! '+ response.status_code)
+                        return Response({'error': 'tuning blockchain error'}, status=500)
 
         self.perform_update(serializer)
         return Response(serializer.data, status=status.HTTP_200_OK)
