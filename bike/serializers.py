@@ -42,7 +42,7 @@ class RegisterSerializer(serializers.ModelSerializer):
         try:
             user = User.objects.get(username=username)
             profile = Profile.objects.get(user=user)
-            # registration_hash = validated_data['frame_number']+'hash123'.upper()
+            # registration_hash = validated_data['frame_number']+'hash123'.upper() # api 연동 전 테스트용
 
             # ------------------------------------------------- Web3 api 호출 -------- #
             # 블록체인 자전거 등록 url
@@ -101,7 +101,18 @@ class BikeUpdateSerializer(serializers.ModelSerializer):
 
     def update(self, instance, validated_data):
         # ----------- Web3 로직 추가 ------------- #
-        # pass
+        # ToDo: 무게 변경 시 블록체인 api 호출 로직 추가 예정
+        # 도난 여부 상태 변경 블록체인 호출
+        if instance.is_stolen != validated_data['is_stolen']:
+            url = 'http://localhost:8080/blockchain/api/report_stolen/'
+            payload = {
+                'registrationHash': instance.registration_hash,
+                'isStolen': validated_data['is_stolen']
+            }
+            response = requests.post(url=url, json=payload)
+            if response.status_code != 200:
+                print('stolen report error!' + response.status_code)
+                raise serializers.ValidationError("blockchain error")
         # -------------------------------------- #
         return super().update(instance, validated_data)
 
