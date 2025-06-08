@@ -123,6 +123,46 @@ class BikeDetailSerializer(serializers.ModelSerializer):
         model = Bike
         fields = '__all__'
 
+    def to_representation(self, instance):
+        # 보험/수리/튜닝/소모품 횟수 및 날짜
+        # 소유자 변경 카운트/ 날짜
+        rep = super().to_representation(instance)
+        registration_hash = instance.registration_hash
+
+        # 블록체인 api 호출
+        repair_url = 'http://localhost:8080/blockchain/api/get_repair_history/'
+        tuning_url = 'http://localhost:8080/blockchain/api/get_tuning_history/'
+        replacement_url = 'http://localhost:8080/blockchain/api/get_replacement_history/'
+        insurance_url = 'http://localhost:8080/blockchain/api/get_insurance_history/'
+        payload = {
+            'registrationHash': registration_hash
+        }
+
+        repair_res = requests.post(url=repair_url, json=payload)
+        tuning_res = requests.post(url=tuning_url, json=payload)
+        replacement_res = requests.post(url=replacement_url, json=payload)
+        insurance_res = requests.post(url=insurance_url, json=payload)
+        if (repair_res.status_code != 200 or tuning_res.status_code != 200 or
+                replacement_res.status_code != 200 or insurance_res.status_code != 200):
+            raise serializers.ValidationError("blockchain error!")
+
+        repair_data = repair_res.json()
+        tuning_data = tuning_res.json()
+        replacement_data = replacement_res.json()
+        insurance_data = insurance_res.json()
+
+        # 추가 데이터 넣기
+        rep['repair_count'] = repair_data['count']
+        rep['repair_data'] = repair_data['data']
+        rep['tuning_count'] = tuning_data['count']
+        rep['tuning_data'] = tuning_data['data']
+        rep['replacement_count'] = replacement_data['count']
+        rep['replacement_data'] = replacement_data['data']
+        rep['insurance_count'] = insurance_data['count']
+        rep['insurance_data'] = insurance_data['data']
+
+        return rep
+
 
 # 일부 정보 조회용 시리얼라이저 (일반인 - 개인정보와 보험내역을 제외 조회)
 class BikePublicSerializer(serializers.ModelSerializer):
@@ -131,9 +171,49 @@ class BikePublicSerializer(serializers.ModelSerializer):
         exclude = ['user', 'nickname', 'current_pos']
         # fields = ['model', 'manufacturer', 'is_stolen']      # 추가 예정
 
+    # 변경 카운트 등 추가
+    def to_representation(self, instance):
+        # 보험/수리/튜닝/소모품 횟수 및 날짜
+        # 소유자 변경 카운트/ 날짜
+        rep = super().to_representation(instance)
+        registration_hash = instance.registration_hash
 
-# ToDo: 블록체인 보험, 수리 내역 추가 API 작성 필요 -> blockchain app에 구현됨
-# ToDo: 블록체인 소유자 이전 API 작성 필요 -> blockchain app에 구현됨
+        # 블록체인 api 호출
+        repair_url = 'http://localhost:8080/blockchain/api/get_repair_history/'
+        tuning_url = 'http://localhost:8080/blockchain/api/get_tuning_history/'
+        replacement_url = 'http://localhost:8080/blockchain/api/get_replacement_history/'
+        insurance_url = 'http://localhost:8080/blockchain/api/get_insurance_history/'
+        payload = {
+            'registrationHash': registration_hash
+        }
+
+        repair_res = requests.post(url=repair_url, json=payload)
+        tuning_res = requests.post(url=tuning_url, json=payload)
+        replacement_res = requests.post(url=replacement_url, json=payload)
+        insurance_res = requests.post(url=insurance_url, json=payload)
+        if (repair_res.status_code != 200 or tuning_res.status_code != 200 or
+                replacement_res.status_code != 200 or insurance_res.status_code != 200):
+            raise serializers.ValidationError("blockchain error!")
+
+        repair_data = repair_res.json()
+        tuning_data = tuning_res.json()
+        replacement_data = replacement_res.json()
+        insurance_data = insurance_res.json()
+
+        # 추가 데이터 넣기
+        rep['repair_count'] = repair_data['count']
+        rep['repair_data'] = repair_data['data']
+        rep['tuning_count'] = tuning_data['count']
+        rep['tuning_data'] = tuning_data['data']
+        rep['replacement_count'] = replacement_data['count']
+        rep['replacement_data'] = replacement_data['data']
+        rep['insurance_count'] = insurance_data['count']
+
+        return rep
+
+
+# ToDo: (완료) 블록체인 보험, 수리 내역 추가 API 작성 필요 -> blockchain app에 구현됨
+# ToDo: (완료) 블록체인 소유자 이전 API 작성 필요 -> blockchain app에 구현됨
 
 
 # 자전거 목록 조회 시리얼라이저
