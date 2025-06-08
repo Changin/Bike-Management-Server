@@ -3,3 +3,4 @@ secrets.json
 .idea
 *.pyc
 __pycache__
+media/qrcodes/*
