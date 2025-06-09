@@ -66,7 +66,7 @@ class LoginSerializer(serializers.Serializer):
         user = authenticate(**data)
         if user:
             token = Token.objects.get(user=user)    # 해당 유저의 토큰 불러오기
-            return token
+            return token, user.id   # 토큰과 pk값 반환
         raise serializers.ValidationError(  # 가입된 유저 없을 경우
             {"error": "Unable to log in with provided credentials."}
         )
