@@ -81,7 +81,7 @@ class ComponentView(generics.RetrieveUpdateAPIView):
         if request.method == 'PATCH':
             # ----------------- 여기서 Web3 로직 수행 ------------- #
             expendables = ('hood', 'bartape', 'chainring', 'sprocket', 'chain',
-                           'pulley', 'brakepad', 'rotor', 'tyre', 'tube', 'cable')
+                           'pulley', 'brakepad', 'rotor', 'tyre', 'tube', 'cable', 'other')
 
             for key, value in request.data.items():
                 if key in expendables:

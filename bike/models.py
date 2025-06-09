@@ -83,7 +83,7 @@ class Component(models.Model):
     mount = models.CharField(max_length=40, default='original')     # 속도계 마운트
     sensor = models.CharField(max_length=40, default='original')
     cable = models.CharField(max_length=40, default='original')     # 소모품 (케이블 (겉선 & 속선))
-    other = models.CharField(max_length=40, default='original')     # 오일, 구리스, 실란트
+    other = models.CharField(max_length=40, default='original')     # 소모품 오일, 구리스, 실란트
 
 
 # Bike 모델이 post_save 이벤트를 발생시켰을 때 리스너.
