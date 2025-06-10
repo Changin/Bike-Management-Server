@@ -9,6 +9,7 @@ from .models import Component, Bike
 from .permissions import CustomReadOnly, CustomBikeReadOnly
 
 import requests
+from datetime import datetime
 
 
 # Create your views here.
@@ -83,13 +84,22 @@ class ComponentView(generics.RetrieveUpdateAPIView):
             expendables = ('hood', 'bartape', 'chainring', 'sprocket', 'chain',
                            'pulley', 'brakepad', 'rotor', 'tyre', 'tube', 'cable', 'other')
 
-            for key, value in request.data.items():
+            # 타임스탬프 추가
+            data = request.data.copy()
+            date_str = data.pop('timestamp')[0]
+            dt = datetime.strptime(date_str, "%Y-%m-%d")    # 날짜 문자열 파싱
+            timestamp = dt.timestamp()
+            timestamp = int(timestamp)
+
+
+            for key, value in data.items():
                 if key in expendables:
                     # 소모품의 경우 교체이력 추가 api 호출
                     url = 'http://localhost:8080/blockchain/api/add_replacement_history/'
                     payload = {
                         'registrationHash': self.kwargs.get('registration_hash'),
-                        'replacementCID': key + ':' + value
+                        'replacementCID': key + ':' + value,
+                        'timestamp': timestamp
                     }
                     response = requests.post(url=url, json=payload)
                     if response.status_code != 200:
@@ -100,7 +110,8 @@ class ComponentView(generics.RetrieveUpdateAPIView):
                     url = 'http://localhost:8080/blockchain/api/add_tuning_history/'
                     payload = {
                         'registrationHash': self.kwargs.get('registration_hash'),
-                        'tuningCID': key + ':' + value
+                        'tuningCID': key + ':' + value,
+                        'timestamp': timestamp
                     }
                     response = requests.post(url=url, json=payload)
                     if response.status_code != 200:

@@ -31,7 +31,7 @@ def handle_transaction_success(tx_hash):
     })
 
 
-# 📌 자전거 등록 API
+#  자전거 등록 API
 @csrf_exempt
 def register_bicycle(request):
     if request.method != 'POST':
@@ -122,7 +122,7 @@ def get_registration_hash(request):
         return handle_api_error(e)
 
 
-#  수리 이력 추가 API (registrationHash 직접 받는 버전)
+#  수리 이력 추가 API (timestamp 수동 입력 가능)
 @csrf_exempt
 def add_repair_history(request):
     if request.method != 'POST':
@@ -132,12 +132,18 @@ def add_repair_history(request):
         data = json.loads(request.body)
         reg_hash = data.get('registrationHash')
         repair_cid = data.get('repairCID')
+        timestamp = data.get('timestamp')  # 옵션 필드
 
         if not reg_hash or not repair_cid:
             return JsonResponse({'status': 'error', 'message': 'registrationHash와 repairCID는 필수입니다.'})
 
+        # timestamp가 없으면 현재 시각으로 설정
+        if not timestamp:
+            import time
+            timestamp = int(time.time())
+
         nonce = web3.eth.get_transaction_count(server_account.address)
-        txn = contract_instance.functions.addRepairHistory(reg_hash, repair_cid).build_transaction({
+        txn = contract_instance.functions.addRepairHistory(reg_hash, repair_cid, timestamp).build_transaction({
             'from': server_account.address,
             'nonce': nonce,
             'gas': 300000,
@@ -154,7 +160,7 @@ def add_repair_history(request):
         return handle_api_error(e)
 
 
-#  보험 이력 추가 API (registrationHash 직접 받는 버전)
+#  보험 이력 추가 API (timestamp 수동 입력 가능)
 @csrf_exempt
 def add_insurance_history(request):
     if request.method != 'POST':
@@ -164,12 +170,18 @@ def add_insurance_history(request):
         data = json.loads(request.body)
         reg_hash = data.get('registrationHash')
         insurance_cid = data.get('insuranceCID')
+        timestamp = data.get('timestamp')  # 옵션 파라미터
 
         if not reg_hash or not insurance_cid:
             return JsonResponse({'status': 'error', 'message': 'registrationHash와 insuranceCID는 필수입니다.'})
 
+        # timestamp가 없으면 현재 시각 사용
+        if not timestamp:
+            import time
+            timestamp = int(time.time())
+
         nonce = web3.eth.get_transaction_count(server_account.address)
-        txn = contract_instance.functions.addInsuranceHistory(reg_hash, insurance_cid).build_transaction({
+        txn = contract_instance.functions.addInsuranceHistory(reg_hash, insurance_cid, timestamp).build_transaction({
             'from': server_account.address,
             'nonce': nonce,
             'gas': 300000,
@@ -186,7 +198,7 @@ def add_insurance_history(request):
         return handle_api_error(e)
 
 
-#  교체 이력 추가 API (registrationHash 직접 받는 버전)
+#  교체 이력 추가 API (timestamp 수동 입력 가능)
 @csrf_exempt
 def add_replacement_history(request):
     if request.method != 'POST':
@@ -196,17 +208,24 @@ def add_replacement_history(request):
         data = json.loads(request.body)
         reg_hash = data.get('registrationHash')
         replacement_cid = data.get('replacementCID')
+        timestamp = data.get('timestamp')  # 수동 입력 가능
 
         if not reg_hash or not replacement_cid:
             return JsonResponse({'status': 'error', 'message': 'registrationHash와 replacementCID는 필수입니다.'})
 
+        # timestamp 미입력 시 현재 시각으로 처리
+        if not timestamp:
+            import time
+            timestamp = int(time.time())
+
         nonce = web3.eth.get_transaction_count(server_account.address)
-        txn = contract_instance.functions.addReplacementHistory(reg_hash, replacement_cid).build_transaction({
-            'from': server_account.address,
-            'nonce': nonce,
-            'gas': 300000,
-            'gasPrice': web3.to_wei('1', 'gwei')
-        })
+        txn = contract_instance.functions.addReplacementHistory(reg_hash, replacement_cid, timestamp).build_transaction(
+            {
+                'from': server_account.address,
+                'nonce': nonce,
+                'gas': 300000,
+                'gasPrice': web3.to_wei('1', 'gwei')
+            })
 
         signed_txn = web3.eth.account.sign_transaction(txn, private_key=server_private_key)
         tx_hash = web3.eth.send_raw_transaction(signed_txn.raw_transaction)
@@ -218,7 +237,7 @@ def add_replacement_history(request):
         return handle_api_error(e)
 
 
-#  튜닝 이력 추가 API (registrationHash 직접 받는 버전)
+#  튜닝 이력 추가 API (timestamp 수동 입력 가능)
 @csrf_exempt
 def add_tuning_history(request):
     if request.method != 'POST':
@@ -228,12 +247,18 @@ def add_tuning_history(request):
         data = json.loads(request.body)
         reg_hash = data.get('registrationHash')
         tuning_cid = data.get('tuningCID')
+        timestamp = data.get('timestamp')  # 옵션 필드
 
         if not reg_hash or not tuning_cid:
             return JsonResponse({'status': 'error', 'message': 'registrationHash와 tuningCID는 필수입니다.'})
 
+        # timestamp가 없으면 현재 시각으로 설정
+        if not timestamp:
+            import time
+            timestamp = int(time.time())
+
         nonce = web3.eth.get_transaction_count(server_account.address)
-        txn = contract_instance.functions.addTuningHistory(reg_hash, tuning_cid).build_transaction({
+        txn = contract_instance.functions.addTuningHistory(reg_hash, tuning_cid, timestamp).build_transaction({
             'from': server_account.address,
             'nonce': nonce,
             'gas': 300000,
@@ -250,7 +275,7 @@ def add_tuning_history(request):
         return handle_api_error(e)
 
 
-# 📌 소유권 이전 API (registrationHash 기반)
+#  소유권 이전 API (timestamp 수동 입력 가능)
 @csrf_exempt
 def transfer_ownership(request):
     if request.method != 'POST':
@@ -264,9 +289,15 @@ def transfer_ownership(request):
         new_owner_name = data.get('newOwnerName')
         new_owner_rrn_front = data.get('newOwnerRRNFront')
         new_owner_contact = data.get('newOwnerContact')
+        timestamp = data.get('timestamp')  # 선택 입력
 
         if not all([reg_hash, new_owner_id, new_owner_name, new_owner_rrn_front, new_owner_contact]):
             return JsonResponse({'status': 'error', 'message': 'registrationHash 및 새 소유자 정보가 모두 필요합니다.'})
+
+        # timestamp 없으면 현재 시각으로 설정
+        if not timestamp:
+            import time
+            timestamp = int(time.time())
 
         nonce = web3.eth.get_transaction_count(server_account.address)
         txn = contract_instance.functions.transferOwnership(
@@ -274,7 +305,8 @@ def transfer_ownership(request):
             new_owner_id,
             new_owner_name,
             new_owner_rrn_front,
-            new_owner_contact
+            new_owner_contact,
+            timestamp
         ).build_transaction({
             'from': server_account.address,
             'nonce': nonce,
@@ -539,5 +571,4 @@ def generate_qr(request):
 
         except Exception as e:
             return JsonResponse({"error": str(e)}, status=500)
-
 

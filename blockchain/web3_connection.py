@@ -174,6 +174,11 @@ abi = [
         "internalType": "string",
         "name": "cid",
         "type": "string"
+      },
+      {
+        "internalType": "uint256",
+        "name": "customTimestamp",
+        "type": "uint256"
       }
     ],
     "name": "addInsuranceHistory",
@@ -192,6 +197,11 @@ abi = [
         "internalType": "string",
         "name": "cid",
         "type": "string"
+      },
+      {
+        "internalType": "uint256",
+        "name": "customTimestamp",
+        "type": "uint256"
       }
     ],
     "name": "addRepairHistory",
@@ -210,6 +220,11 @@ abi = [
         "internalType": "string",
         "name": "cid",
         "type": "string"
+      },
+      {
+        "internalType": "uint256",
+        "name": "customTimestamp",
+        "type": "uint256"
       }
     ],
     "name": "addReplacementHistory",
@@ -228,6 +243,11 @@ abi = [
         "internalType": "string",
         "name": "cid",
         "type": "string"
+      },
+      {
+        "internalType": "uint256",
+        "name": "customTimestamp",
+        "type": "uint256"
       }
     ],
     "name": "addTuningHistory",
@@ -632,6 +652,11 @@ abi = [
         "internalType": "string",
         "name": "newOwnerContact",
         "type": "string"
+      },
+      {
+        "internalType": "uint256",
+        "name": "customTimestamp",
+        "type": "uint256"
       }
     ],
     "name": "transferOwnership",
@@ -640,6 +665,7 @@ abi = [
     "type": "function"
   }
 ]
+
 
 
 
