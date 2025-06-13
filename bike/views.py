@@ -87,7 +87,7 @@ class ComponentView(generics.RetrieveUpdateAPIView):
             # 타임스탬프 추가
             data = request.data.copy()
             date_str = data.pop('timestamp')
-            print(date_str)
+            # print(date_str)
             dt = datetime.strptime(date_str, "%Y-%m-%d")    # 날짜 문자열 파싱
             timestamp = dt.timestamp()
             timestamp = int(timestamp)
