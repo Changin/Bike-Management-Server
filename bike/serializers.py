@@ -175,7 +175,7 @@ class BikePublicSerializer(serializers.ModelSerializer):
     class Meta:
         model = Bike
         exclude = ['user', 'nickname', 'current_pos']
-        # fields = ['model', 'manufacturer', 'is_stolen']      # 추가 예정
+        # fields = ['model', 'manufacturer', 'is_stolen']
 
     # 변경 카운트 등 추가
     def to_representation(self, instance):
@@ -219,6 +219,11 @@ class BikePublicSerializer(serializers.ModelSerializer):
         rep['replacement_data'] = replacement_data['data']
         rep['insurance_count'] = insurance_data['count']
         rep['ownership_count'] = ownership_data['count']
+
+        # 도난상태일 경우 사용자 전화번호 추가
+        if instance.is_stolen:
+            profile = Profile.objects.get(user=instance.user)
+            rep['phone'] = profile.phone
 
         return rep
 
